@@ -30,7 +30,7 @@ class ListAddress(ExtendedModelMixin):
 
 class List(ExtendedModelMixin):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)  # name has to be unique to the account
     cover_image = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(max_length=255, null=True, blank=True)
     public = models.BooleanField(default=True)

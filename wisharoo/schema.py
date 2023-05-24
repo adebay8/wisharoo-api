@@ -1,9 +1,14 @@
 import graphene
 from lists.schema import schema as ListSchema
+from timelines.schema import schema as TimelineSchema
 
 
-class Query(ListSchema.query, graphene.ObjectType):
-    hello = graphene.String(default_value="Hi!")
+class Query(ListSchema.query, TimelineSchema.query, graphene.ObjectType):
+    pass
 
 
-schema = graphene.Schema(query=Query)
+class Mutation(ListSchema.mutation, TimelineSchema.mutation, graphene.ObjectType):
+    pass
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
