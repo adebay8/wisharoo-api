@@ -16,12 +16,13 @@ import os
 from google.cloud import secretmanager
 import io
 from urllib.parse import urlparse
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, False))
+env = environ.Env(DEBUG=(bool, True))
 env_file = os.path.join(BASE_DIR, ".env")
 
 # Read .env file
@@ -80,6 +81,7 @@ INSTALLED_APPS = [
     "timelines",
     "profiles",
     "corsheaders",
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
 ]
 
 MIDDLEWARE = [
@@ -93,6 +95,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 
 ROOT_URLCONF = "wisharoo.urls"
 
@@ -146,6 +154,7 @@ if DEBUG:
         },
     }
 
+AUTH_USER_MODEL = "profiles.User"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -155,7 +164,7 @@ DATABASES = {"default": env.db()}
 # If the flag as been set, configure to use proxy
 if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
     DATABASES["default"]["HOST"] = "127.0.0.1"
-    DATABASES["default"]["PORT"] = 5432
+    DATABASES["default"]["PORT"] = 5433
 
 
 # Password validation
@@ -214,7 +223,15 @@ GRAPHENE = {
     "SCHEMA": "wisharoo.schema.schema",
     "MIDDLEWARE": [
         "graphene_django.debug.DjangoDebugMiddleware",
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
     ],
+}
+
+GRAPHQL_JWT = {
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=10),
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
 }
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "https://wisharoo-spa.netlify.app"]

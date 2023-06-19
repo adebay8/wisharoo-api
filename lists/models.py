@@ -1,6 +1,6 @@
 from django.db import models
 from wisharoo.mixins import ExtendedModelMixin
-import uuid
+import shortuuid
 
 # Create your models here.
 
@@ -13,36 +13,17 @@ class ListCollection(ExtendedModelMixin):
         return self.name
 
 
-class ListAddress(ExtendedModelMixin):
-    country = models.CharField(max_length=255)
-    line_one = models.CharField(max_length=255)
-    line_two = models.CharField(max_length=255, null=True, blank=True)
-    city = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    postcode = models.CharField(max_length=50)
-    public = models.BooleanField(default=True)
-    first_name = models.CharField(max_length=255, null=True, blank=True)
-    last_name = models.CharField(max_length=255, null=True, blank=True)
-
-    def __str__(self) -> str:
-        return f"{self.line_one}, {self.city}, {self.state}, {self.postcode}"
-
-
 class List(ExtendedModelMixin):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)  # name has to be unique to the account
     cover_image = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(max_length=255, null=True, blank=True)
     public = models.BooleanField(default=True)
-    custom_route = models.CharField(max_length=255, null=True, blank=True)
+    slug = models.CharField(max_length=255, default=shortuuid.uuid())
     collection = models.ForeignKey(
         ListCollection,
         null=True,
         on_delete=models.SET_NULL,
         related_name="collection_lists",
-    )
-    address = models.ForeignKey(
-        ListAddress, null=True, on_delete=models.SET_NULL, related_name="address_lists"
     )
 
     def __str__(self) -> str:

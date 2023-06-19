@@ -13,12 +13,6 @@ class CreateListInputType(graphene.InputObjectType):
     collection = graphene.Int()
 
 
-class ListAddressType(DjangoObjectType):
-    class Meta:
-        model = models.ListAddress
-        fields = "__all__"
-
-
 class ListImageType(DjangoObjectType):
     class Meta:
         model = models.ListImage

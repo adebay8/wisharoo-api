@@ -1,9 +1,11 @@
 from django.db import models
 from django.db.models.query import QuerySet
 from pytz import timezone
+import uuid
 
 
 class BaseTimestampedModel(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

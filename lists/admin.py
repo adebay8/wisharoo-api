@@ -11,6 +11,5 @@ admin.site.register(
         models.ListItemImage,
         models.ListCollection,
         models.ListImage,
-        models.ListAddress,
     ]
 )
