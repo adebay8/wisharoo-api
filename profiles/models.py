@@ -6,7 +6,9 @@ from wisharoo.mixins import ExtendedModelMixin
 
 
 # Create your models here.
-class User(AbstractUser):
+
+
+class User(AbstractUser, ExtendedModelMixin):
     email = models.EmailField(_("email address"), unique=True)
 
     USERNAME_FIELD = "email"
@@ -17,10 +19,28 @@ class User(AbstractUser):
 
 
 class UserProfile(ExtendedModelMixin):
-    user = models.OneToOneField(get_user_model(), on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(
+        get_user_model(), on_delete=models.SET_NULL, null=True, related_name="profile"
+    )
     phone_number = models.CharField(max_length=50, blank=True)
     website = models.CharField(max_length=255, blank=True)
     photo = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.user.get_username()
+
+
+class UserAddress(ExtendedModelMixin):
+    country = models.CharField(max_length=255)
+    line_one = models.CharField(max_length=255)
+    line_two = models.CharField(max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    postcode = models.CharField(max_length=50)
+    public = models.BooleanField(default=True)
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.SET_NULL, null=True, related_name="addresses"
+    )
+
+    def __str__(self) -> str:
+        return f"{self.line_one}, {self.city}, {self.state}, {self.postcode}"

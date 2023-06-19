@@ -16,6 +16,7 @@ import os
 from google.cloud import secretmanager
 import io
 from urllib.parse import urlparse
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -80,6 +81,7 @@ INSTALLED_APPS = [
     "timelines",
     "profiles",
     "corsheaders",
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
 ]
 
 MIDDLEWARE = [
@@ -93,6 +95,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 
 ROOT_URLCONF = "wisharoo.urls"
 
@@ -215,7 +223,15 @@ GRAPHENE = {
     "SCHEMA": "wisharoo.schema.schema",
     "MIDDLEWARE": [
         "graphene_django.debug.DjangoDebugMiddleware",
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
     ],
+}
+
+GRAPHQL_JWT = {
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=10),
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
 }
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "https://wisharoo-spa.netlify.app"]
