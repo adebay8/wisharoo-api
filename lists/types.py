@@ -1,11 +1,16 @@
 from . import models
 from graphene_django import DjangoObjectType
+import graphene
 
 
-class ListAddressType(DjangoObjectType):
-    class Meta:
-        model = models.ListAddress
-        fields = "__all__"
+class CreateListInputType(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    description = graphene.String()
+    cover_image = graphene.String()
+    public = graphene.Boolean()
+    custom_route = graphene.String()
+    address = graphene.Int()
+    collection = graphene.Int()
 
 
 class ListImageType(DjangoObjectType):
