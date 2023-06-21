@@ -135,7 +135,7 @@ if DEBUG:
         },
         "handlers": {
             "file": {
-                "level": "DEBUG",
+                "level": "ERROR",
                 "class": "logging.FileHandler",
                 "filename": os.path.join(BASE_DIR, "wisharoo/logs/debug.log"),
                 "formatter": "verbose",
@@ -145,7 +145,7 @@ if DEBUG:
             "django": {
                 "handlers": ["file"],
                 "propagate": True,
-                "level": "DEBUG",
+                "level": "ERROR",
             },
             "MYAPP": {
                 "handlers": ["file"],

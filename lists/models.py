@@ -1,6 +1,8 @@
 from django.db import models
 from wisharoo.mixins import ExtendedModelMixin
 import shortuuid
+from django.contrib.auth import get_user_model
+from . import validators
 
 # Create your models here.
 
@@ -22,9 +24,17 @@ class List(ExtendedModelMixin):
     collection = models.ForeignKey(
         ListCollection,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name="collection_lists",
     )
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        related_name="user_lists",
+        null=True,
+    )
+    event_date = models.DateField(validators=[validators.validate_event_date])
 
     def __str__(self) -> str:
         return self.name

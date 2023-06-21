@@ -5,12 +5,13 @@ import graphene
 
 class CreateListInputType(graphene.InputObjectType):
     name = graphene.String(required=True)
-    description = graphene.String()
+    description = graphene.String(required=True)
     cover_image = graphene.String()
     public = graphene.Boolean()
-    custom_route = graphene.String()
-    address = graphene.Int()
+    slug = graphene.String()
     collection = graphene.Int()
+    event_date = graphene.String(required=True)
+    user = graphene.String(required=True)
 
 
 class ListImageType(DjangoObjectType):
