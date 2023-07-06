@@ -8,24 +8,27 @@ from django.contrib.auth import get_user_model
 
 class Query(graphene.ObjectType):
     lists = graphene.List(
-        types.ListType, uuid=graphene.String(), slug=graphene.String()
+        types.ListType,
+        uuid=graphene.String(),
+        slug=graphene.String(),
+        user=graphene.String(),
     )
     list = graphene.Field(
         types.ListType, uuid=graphene.String(required=True), slug=graphene.String()
     )
 
     def resolve_lists(root, info, **kwargs):
-        # filter_kwargs = {}
+        filters = {}
 
-        # if "uuid" in kwargs:
-        #     filter_kwargs["uuid"] = kwargs.get("uuid")
-        # if "slug" in kwargs:
-        #     filter_kwargs["slug"] = kwargs.get("slug")
+        if "user" in kwargs:
+            filters["user__uuid"] = kwargs.pop("user")
+
+        filters.update(kwargs)
 
         if len(kwargs) > 0:
             try:
                 return models.List.objects.select_related("collection", "user").filter(
-                    **kwargs
+                    **filters
                 )
             except models.List.DoesNotExist:
                 return None

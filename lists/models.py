@@ -15,12 +15,16 @@ class ListCollection(ExtendedModelMixin):
         return self.name
 
 
+def create_unique_slug():
+    return shortuuid.uuid()
+
+
 class List(ExtendedModelMixin):
     name = models.CharField(max_length=255)  # name has to be unique to the account
     cover_image = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(max_length=255, null=True, blank=True)
     public = models.BooleanField(default=True)
-    slug = models.CharField(max_length=255, default=shortuuid.uuid())
+    slug = models.CharField(max_length=255, default=create_unique_slug, unique=True)
     collection = models.ForeignKey(
         ListCollection,
         null=True,
