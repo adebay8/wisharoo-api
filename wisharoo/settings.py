@@ -22,13 +22,11 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, True))
+env = environ.Env(DEBUG=(bool, False))
 env_file = os.path.join(BASE_DIR, ".env")
 
 # Read .env file
-if os.path.isfile(env_file):
-    env.read_env(env_file)
-elif os.environ.get("GOOGLE_CLOUD_PROJECT", None):
+if os.environ.get("GOOGLE_CLOUD_PROJECT", None):
     # Pull secrets from Secret Manager
     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
 
@@ -38,6 +36,8 @@ elif os.environ.get("GOOGLE_CLOUD_PROJECT", None):
     payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
 
     env.read_env(io.StringIO(payload))
+elif os.path.isfile(env_file):
+    env.read_env(env_file)
 else:
     raise Exception("No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
 
@@ -107,7 +107,9 @@ ROOT_URLCONF = "wisharoo.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -135,7 +137,7 @@ if DEBUG:
         },
         "handlers": {
             "file": {
-                "level": "DEBUG",
+                "level": "ERROR",
                 "class": "logging.FileHandler",
                 "filename": os.path.join(BASE_DIR, "wisharoo/logs/debug.log"),
                 "formatter": "verbose",
@@ -145,7 +147,7 @@ if DEBUG:
             "django": {
                 "handlers": ["file"],
                 "propagate": True,
-                "level": "DEBUG",
+                "level": "ERROR",
             },
             "MYAPP": {
                 "handlers": ["file"],
@@ -164,7 +166,7 @@ DATABASES = {"default": env.db()}
 # If the flag as been set, configure to use proxy
 if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
     DATABASES["default"]["HOST"] = "127.0.0.1"
-    DATABASES["default"]["PORT"] = 5433
+    DATABASES["default"]["PORT"] = 5433 if DEBUG else 5432
 
 
 # Password validation
@@ -239,3 +241,12 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "https://wisharoo-spa.netlify.a
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Here
 MEDIA_URL = "/media/"
+
+# Email clients
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "oluwaponnle@gmail.com"
+EMAIL_HOST_PASSWORD = "yxforavsjsdxjspb"

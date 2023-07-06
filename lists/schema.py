@@ -1,21 +1,39 @@
 import graphene
 from graphene_django import DjangoObjectType
 from . import models, types
+from datetime import datetime
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
 
 class Query(graphene.ObjectType):
-    lists = graphene.List(types.ListType, uuid=graphene.String())
-    list = graphene.Field(types.ListType, uuid=graphene.String(required=True))
+    lists = graphene.List(
+        types.ListType,
+        uuid=graphene.String(),
+        slug=graphene.String(),
+        user=graphene.String(),
+    )
+    list = graphene.Field(
+        types.ListType, uuid=graphene.String(required=True), slug=graphene.String()
+    )
 
     def resolve_lists(root, info, **kwargs):
-        if "uuid" in kwargs:
+        filters = {}
+
+        if "user" in kwargs:
+            filters["user__uuid"] = kwargs.pop("user")
+
+        filters.update(kwargs)
+
+        if len(kwargs) > 0:
             try:
-                return models.List.objects.select_related().filter(
-                    uuid=kwargs.get("uuid")
+                return models.List.objects.select_related("collection", "user").filter(
+                    **filters
                 )
             except models.List.DoesNotExist:
                 return None
-        return models.List.objects.select_related("collection", "address").all()
+
+        return models.List.objects.select_related("collection", "user").all()
 
     def resolve_list(root, info, **kwargs):
         try:
@@ -32,6 +50,7 @@ class CreateList(graphene.Mutation):
 
     success = graphene.Boolean()
     list = graphene.Field(types.ListType)
+    message = graphene.String()
 
     def mutate(root, info, **kwargs):
         if "list" not in kwargs:
@@ -44,29 +63,21 @@ class CreateList(graphene.Mutation):
                 name=data.name,
                 description=data.description,
                 cover_image=data.cover_image,
-                public=data.public,
-                custom_route=data.custom_route,
+                event_date=datetime.strptime(data.event_date, "%Y-%m-%d"),
+                user=get_user_model().objects.get(uuid=data.user),
             )
 
-            if "address" in data:
-                try:
-                    address = models.ListAddress.objects.get(pk=address)
-                    list.address = address
-                except:
-                    list.address = None
+            if "public" in data:
+                list.public = data.public
+            if "slug" in data:
+                list.slug = data.slug
 
-            if "collection" in data:
-                try:
-                    collection = models.ListCollection.objects.get(pk=address)
-                    list.collection = collection
-                except:
-                    list.collection = None
-
+            list.full_clean()
             list.save()
 
             return CreateList(list=list, success=True)
-        except:
-            return CreateList(list=None, success=False)
+        except Exception as e:
+            return CreateList(list=None, success=False, message=str(e))
 
 
 class UpdateList(graphene.Mutation):
