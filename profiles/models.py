@@ -44,3 +44,12 @@ class UserAddress(ExtendedModelMixin):
 
     def __str__(self) -> str:
         return f"{self.line_one}, {self.city}, {self.state}, {self.postcode}"
+
+
+class WaitlistUser(ExtendedModelMixin):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.EmailField()
+
+    def __str__(self):
+        return "{} {}".format(self.first_name, self.last_name)

@@ -1,0 +1,4 @@
+Welcome to Wisharoo, {{ firstName }}!
+
+Thank you for joining our waitlist. We are thrilled to have you on board.
+Be the first to know when we launch and start exploring a world of wishes and possibilities!
